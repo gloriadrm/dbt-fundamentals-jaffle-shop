@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_jaffle_shop__customers
+    description: Staging model for customers from Jaffle Shop. One row per customer.
+    columns:
+      - name: customer_id
+        description: Primary key of the customers table.
+        tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: First name of the customer.
+
+      - name: last_name
+        description: Last name of the customer.
