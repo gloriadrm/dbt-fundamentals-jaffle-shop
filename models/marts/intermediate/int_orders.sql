@@ -13,11 +13,10 @@ payments as (
 ),
 
 completed_payments as (
-
   select 
     order_id,
     max(payment_created_at) as payment_finalized_date,
-    sum(payment_amount) as total_amount_paid
+    sum(payment_amount)/100 as total_amount_paid
   from payments
   where payment_status <> 'fail'
   group by 1
