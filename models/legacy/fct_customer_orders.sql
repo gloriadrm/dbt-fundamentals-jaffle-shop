@@ -1,50 +1,28 @@
 with
 
--- Import CTEs
-customers as (
-    select * from {{ source('jaffle_shop', 'customers') }}
+-- Import staging CTEs
+
+customers as ( 
+    select * 
+    from {{ ref('stg_jaffle_shop__customers') }}
 ),
 
-orders as (
-    select * from {{ source('jaffle_shop', 'orders') }}
-),
-
-payments as (
-    select * from {{ source('stripe', 'payment') }}
-),
-
--- Logical CTEs
-order_payments as (
-    select
-        orderid as order_id,
-        max(created) as payment_finalized_date,
-        sum(amount) / 100.0 as total_amount_paid
-    from payments
-    where status <> 'fail'
-    group by 1
-),
-
-paid_orders as (
-    select
-        orders.id as order_id,
-        orders.user_id as customer_id,
-        orders.order_date as order_placed_at,
-        orders.status as order_status,
-        order_payments.total_amount_paid,
-        order_payments.payment_finalized_date,
-        customers.first_name as customer_first_name,
-        customers.last_name as customer_last_name
-    from orders
-    left join order_payments
-        on orders.id = order_payments.order_id
-    left join customers
-        on orders.user_id = customers.id
+paid_orders as ( 
+    select * 
+    from {{ ref('int_orders') }}
 ),
 
 -- Final CTE
 final as (
     select
-        paid_orders.*,
+        paid_orders.order_id,
+        paid_orders.customer_id,
+        paid_orders.order_placed_at,
+        paid_orders.order_status,
+        paid_orders.total_amount_paid,
+        paid_orders.payment_finalized_date,
+        customers.customer_first_name,
+        customers.customer_last_name,
 
         -- Número de transacción global
         row_number() over (
@@ -53,43 +31,45 @@ final as (
 
         -- Número de pedido dentro de cada cliente
         row_number() over (
-            partition by customer_id
+            partition by paid_orders.customer_id
             order by paid_orders.order_id
         ) as customer_sales_seq,
 
-        -- New vs Return: 'new' si es el primer pedido del cliente
+        -- New vs Return
         case
-            when first_value(order_placed_at) over (
-                partition by customer_id
-                order by order_placed_at
-            ) = order_placed_at
+            when first_value(paid_orders.order_placed_at) over (
+                partition by paid_orders.customer_id
+                order by paid_orders.order_placed_at
+            ) = paid_orders.order_placed_at
             then 'new'
             else 'return'
         end as nvsr,
 
-        -- Customer Lifetime Value: running total del gasto del cliente
-        sum(total_amount_paid) over (
-            partition by customer_id
+        -- Customer Lifetime Value
+        sum(paid_orders.total_amount_paid) over (
+            partition by paid_orders.customer_id
             order by paid_orders.order_id
         ) as customer_lifetime_value,
 
-        -- First Date Of Sale: fecha del primer pedido del cliente
-        first_value(order_placed_at) over (
-            partition by customer_id
-            order by order_placed_at
+        -- First Date Of Sale
+        first_value(paid_orders.order_placed_at) over (
+            partition by paid_orders.customer_id
+            order by paid_orders.order_placed_at
         ) as fdos,
 
-        -- Fecha del pedido más reciente del cliente
-        max(order_placed_at) over (
-            partition by customer_id
+        -- Fecha del pedido más reciente
+        max(paid_orders.order_placed_at) over (
+            partition by paid_orders.customer_id
         ) as most_recent_order_date,
 
-        -- Número total de pedidos del cliente
+        -- Número total de pedidos
         count(*) over (
-            partition by customer_id
+            partition by paid_orders.customer_id
         ) as number_of_orders
 
     from paid_orders
+    left join customers
+        on paid_orders.customer_id = customers.customer_id
 )
 
 -- simple select statement

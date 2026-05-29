@@ -11,7 +11,7 @@ orders_with_payments as (
     select 
         orders.order_id,
         orders.customer_id, 
-        payments.amount,
+        payments.payment_amount,
 
     from orders
 
