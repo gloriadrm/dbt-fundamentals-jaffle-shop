@@ -8,3 +8,13 @@ functions:
         data_type: number       
     returns:                    # required
       data_type: number        # required
+
+  - name: create_email       # required
+    description: "Generates a company email with the customer name and id." # optional
+    arguments:                  # optional
+      - name: first_name         
+        data_type: varchar       
+      - name: id         
+        data_type: number       
+    returns:                    # required
+      data_type: varchar        # required
