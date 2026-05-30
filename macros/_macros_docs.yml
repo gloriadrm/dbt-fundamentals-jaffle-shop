@@ -1,0 +1,10 @@
+macros: 
+  - name : cents_to_dollars
+    description: Converts a value from cents to dollar dividing the value by 100. 
+    arguments: 
+      - name: col_name 
+        type : string
+        description : Value to be converted
+      - name: scale 
+        type : integer
+        description : Number of decimals of the calculation. Default 2.
