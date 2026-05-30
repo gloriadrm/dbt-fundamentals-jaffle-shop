@@ -5,6 +5,6 @@ macros:
       - name: col_name 
         type : string
         description : Value to be converted
-      - name: scale 
+      - name: decimals 
         type : integer
         description : Number of decimals of the calculation. Default 2.
