@@ -1,0 +1,19 @@
+macros: 
+  - name : cents_to_dollars
+    description: Converts a value from cents to dollar dividing the value by 100. 
+    arguments: 
+      - name: col_name 
+        type : string
+        description : Value to be converted
+      - name: decimals 
+        type : integer
+        description : Number of decimals of the calculation. Default 2.
+  - name : grant_select
+    description: macro that grants select privs on target.schema to target.role unless otherwise specified
+    arguments: 
+      - name: schema 
+        type : string
+        description : schema we want to grant privs on, by default is our target schema. 
+      - name: role 
+        type : string
+        description : role we want to grant privs to, by default is our target role. 
