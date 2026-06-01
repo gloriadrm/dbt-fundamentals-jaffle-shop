@@ -15,3 +15,4 @@ with
 
 select *
 from transformed
+
