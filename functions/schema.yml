@@ -1,0 +1,20 @@
+functions:
+  - name: safe_divide       # required
+    description: "Safely devide a numerator by a denominator where that value might be 0 ." # optional
+    arguments:                  # optional
+      - name: numerator         
+        data_type: number       
+      - name: denominator         
+        data_type: number       
+    returns:                    # required
+      data_type: number        # required
+
+  - name: create_email       # required
+    description: "Generates a company email with the customer name and id." # optional
+    arguments:                  # optional
+      - name: first_name         
+        data_type: varchar       
+      - name: id         
+        data_type: number       
+    returns:                    # required
+      data_type: varchar        # required
