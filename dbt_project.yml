@@ -20,6 +20,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_fundamental_jaffle_shop:
     staging:
+      +meta:                     # ← envuelto en meta
+        required_tests:
+          "unique.*|not_null": 1
       +materialized: view
     marts:
       +materialized: table

@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_stripe__payment
+    description: Pagos limpios desde Stripe
+    columns:
+      - name: payment_id
+        description: Identificador único del pago
+        data_tests:
+          - unique
+          - not_null
+      
+      - name: order_id
+        description: Pedido asociado al pago
+        data_tests:
+          - not_null
+      
+      - name: payment_amount
+        description: Monto del pago en dólares
+        data_tests:
+          - not_null
