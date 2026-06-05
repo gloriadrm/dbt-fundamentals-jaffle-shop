@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: |
+      Tabla de hechos con pedidos enriquecidos con información de pagos.
+      
+      Una fila por pedido. Incluye el monto pagado (solo pagos exitosos).
+      Materialización: incremental con merge sobre order_id.
+      Refresh: en cada ejecución de dbt run.
+      
+      Origen:
+      - stg_jaffle_shop__orders: información del pedido
+      - stg_stripe__payment: pagos asociados (filtrados a status = 'success')
+    
+    columns:
+      - name: order_id
+        description: Identificador único del pedido. PK de la tabla.
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_jaffle_shop__orders')
+                field: order_id
+      
+      - name: customer_id
+        description: Identificador del cliente que hizo el pedido.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_jaffle_shop__customers')
+                field: customer_id
+              config: 
+                severity: warn
+      
+      - name: order_placed_at
+        description: Fecha en que se realizó el pedido.
+        tests:
+          - not_null
+      
+      - name: payment_amount
+        description: |
+          Suma de pagos exitosos del pedido en dólares.
+          Si no hay pagos exitosos, será 0 (no NULL).
+        tests:
+          - not_null
+          - greater_or_equal_to_zero

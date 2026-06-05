@@ -22,7 +22,7 @@ orders as (
     select 
         customer_id, 
         order_id, 
-        order_placed_at , 
+        order_placed_at
     from {{ ref('stg_jaffle_shop__orders') }}
     
     {% if is_incremental() %}
